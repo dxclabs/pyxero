@@ -27,6 +27,7 @@ class BaseManager(object):
         'get_attachments',
         'get_attachment_data',
         'put_attachment_data',
+        'get_history',
     )
     DATETIME_FIELDS = (
         'UpdatedDateUTC',
@@ -237,6 +238,12 @@ class BaseManager(object):
         uri_params.update(params if params else {})
         return uri, uri_params, 'get', None, headers, True
 
+    def _get_history(self, id, headers=None, params=None):
+        uri = '/'.join([self.base_url, self.name, id, 'history'])
+        uri_params = self.extra_params.copy()
+        uri_params.update(params if params else {})
+        return uri, uri_params, 'get', None, headers, True
+
     def _get_attachments(self, id):
         """Retrieve a list of attachments associated with this Xero object."""
         uri = '/'.join([self.base_url, self.name, id, 'Attachments']) + '/'
@@ -286,7 +293,8 @@ class BaseManager(object):
 
     def put_attachment(self, id, filename, file, content_type, include_online=False):
         """Upload an attachment to the Xero object (from file object)."""
-        return self.put_attachment_data(id, filename, file.read(), content_type, include_online=include_online)
+        self.put_attachment_data(id, filename, file.read(), content_type,
+                                 include_online=include_online)
 
     def prepare_filtering_date(self, val):
         if isinstance(val, datetime):
